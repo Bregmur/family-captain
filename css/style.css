@@ -80,7 +80,13 @@ a {
     position: relative;
     width: 100%;
     height: 100vh;
-    min-height: 640px;
+    /* Never force the hero taller than the actual viewport — on short
+       screens (landscape phones especially) a hard 640px floor used to push
+       the intro/question card and start button below the fold and trigger
+       ugly auto-scroll-into-view jumps. min() caps the floor at whatever is
+       smaller, so short viewports simply get a full-viewport-height hero
+       instead of an oversized one. */
+    min-height: min(640px, 100vh);
     overflow: hidden;
     background: #16232d;
 }
@@ -696,14 +702,35 @@ footer a:hover {
         white-space: nowrap;
     }
 
-    .intro {
-        left: 6%;
-        top: 42%;
-    }
-
+    /* The intro and question card used to be centred with top:50% /
+       translateY(-50%), which works fine on tall screens but lets a tall
+       card (long questions, the multi-line result summary) grow downward
+       past the status callout / gauge that sit pinned near the bottom —
+       that's the overlap seen on shorter phones. Anchoring with both top
+       and bottom instead gives each a fixed, safe zone: the box is
+       vertically centred *inside* that zone via flex, and can never push
+       into the reserved bottom strip. */
+    .intro,
     .question-overlay {
         left: 6%;
-        top: 40%;
+        top: 78px;
+        bottom: 210px;
+        transform: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .intro {
+        width: 88%;
+    }
+
+    /* .intro is now a flex column (see above) so it can be vertically
+       centred within its top/bottom-bound zone; without this the button
+       would stretch to the container's full width instead of hugging its
+       text like a normal pill button. */
+    .intro #startButton {
+        align-self: flex-start;
     }
 
     .intro h1 {
@@ -716,15 +743,143 @@ footer a:hover {
 
     .question-box {
         padding: 24px;
+        /* Safety net: if a question/result card is still too tall for the
+           reserved zone (e.g. the long result summary on a very short
+           phone), it scrolls internally instead of overlapping the status
+           callout or gauge below it. */
+        max-height: 100%;
+        overflow-y: auto;
     }
 
     .status-callout {
         max-width: 260px;
-        bottom: 130px;
+        bottom: 100px;
     }
 
     .gauge {
         width: 100px;
-        bottom: 130px;
+        bottom: 90px;
+    }
+
+    .contact-hero {
+        min-height: 380px;
+    }
+
+    .contact-hero .intro {
+        display: block;
+        top: 50%;
+        bottom: auto;
+        transform: translate(-50%, -50%);
+    }
+
+    .contact-hero .intro h1 {
+        font-size: 1.7rem;
+    }
+
+    .contact-hero .intro p {
+        font-size: 0.95rem;
+    }
+
+    .contact-section {
+        margin-top: -40px;
+    }
+}
+
+/* Short viewports regardless of width — mainly phones in landscape, where
+   width alone (often 700-930px) wouldn't trigger the phone breakpoint above
+   but the available height is even tighter than on portrait phones. */
+@media (max-height: 500px) {
+
+    .site-nav {
+        padding: 10px 5%;
+    }
+
+    .intro,
+    .question-overlay {
+        left: 6%;
+        width: 88%;
+        top: 54px;
+        bottom: 92px;
+        transform: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .intro #startButton {
+        align-self: flex-start;
+    }
+
+    .intro h1 {
+        font-size: 1.6rem;
+        margin-bottom: 10px;
+    }
+
+    .intro .eyebrow {
+        margin-bottom: 6px;
+    }
+
+    .intro p {
+        font-size: 0.9rem;
+        margin-bottom: 16px;
+    }
+
+    .question-box {
+        padding: 18px 22px;
+        max-height: 100%;
+        overflow-y: auto;
+    }
+
+    .question-box h2 {
+        font-size: 1.15rem;
+        margin-bottom: 14px;
+    }
+
+    .status-callout {
+        bottom: 12px;
+        max-width: 220px;
+    }
+
+    .status-callout .status-title {
+        font-size: 1rem;
+        margin-bottom: 2px;
+    }
+
+    .status-callout p {
+        font-size: 0.8rem;
+    }
+
+    .gauge {
+        bottom: 10px;
+        width: 76px;
+    }
+
+    .gauge .gauge-label {
+        font-size: 0.62rem;
+    }
+
+    .contact-hero {
+        min-height: 220px;
+    }
+
+    /* Undo the generic .intro flex/top/bottom rule above for this page —
+       the contact hero centres its intro on both axes and isn't paired
+       with a status callout / gauge, so it doesn't need the reserved
+       bottom zone. */
+    .contact-hero .intro {
+        display: block;
+        top: 50%;
+        bottom: auto;
+        left: 50%;
+        width: 90%;
+        transform: translate(-50%, -50%);
+    }
+
+    .contact-hero .intro h1 {
+        font-size: 1.4rem;
+    }
+
+    .contact-section {
+        margin-top: -30px;
     }
 }
