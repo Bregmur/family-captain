@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Család Kapitánya — Mennyire védett a családod?</title>
+    <meta name="description" content="Öt kérdés. Egy hajó. Nézd meg, mennyire bírja a vihart a családod anyagi biztonsága — és mit tehetsz, hogy fedélzeten maradjanak.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <nav class="site-nav">
+        <div class="brand"><span class="wheel">⚓</span> A Család Kapitánya</div>
+        <a class="nav-link" href="contact.html">Kérj konzultációt</a>
+    </nav>
+
+    <!-- HERO / SCENE -->
+    <section class="hero" id="hero" data-weather="calm">
+
+        <div class="scene" id="scene">
+            <!-- Two stacked layers crossfade between whichever crew/weather
+                 image is currently active; main.js sets backgroundImage on these
+                 directly since the number of combinations is too large for static markup.
+                 Each layer keeps rocking/drifting via CSS so the scene always feels
+                 "alive" while it waits for the next answer, instead of sitting frozen. -->
+            <div class="scene-bg active" id="sceneLayerA"></div>
+            <div class="scene-bg" id="sceneLayerB"></div>
+        </div>
+        <div class="atmosphere"></div>
+        <div class="water-shimmer"></div>
+        <div class="rain-overlay"></div>
+        <div class="lightning"></div>
+
+        <!-- INTRO -->
+        <div class="intro" id="intro">
+            <span class="eyebrow">Ingyenes, 2 perces teszt</span>
+            <h1>Te vagy a családod kapitánya.</h1>
+            <p>
+                Minden kapitány felelősséggel tartozik az utasaiért és a rakományért egyaránt.
+                Már most is húz egy súly a hajód — nézzük meg, mennyire bírná a vihart, ha a szél hirtelen megfordulna.
+            </p>
+            <button id="startButton" class="pill-button">Fedélzetre!</button>
+        </div>
+
+        <!-- QUIZ -->
+        <div id="quiz" class="question-overlay hidden">
+            <div class="question-box">
+                <span class="eyebrow" id="questionEyebrow"></span>
+                <h2 id="question"></h2>
+                <div id="answers"></div>
+            </div>
+        </div>
+
+        <!-- STATUS CALLOUT -->
+        <div class="status-callout" id="statusCallout">
+            <div class="status-title" id="statusTitle"></div>
+            <p id="statusText"></p>
+        </div>
+
+        <!-- GAUGE -->
+        <div class="gauge" id="gauge">
+            <svg viewBox="0 0 130 75">
+                <path d="M10,65 A55,55 0 0,1 120,65" fill="none" stroke="#3a4a55" stroke-width="10" stroke-linecap="round"/>
+                <path d="M10,65 A55,55 0 0,1 120,65" fill="none" stroke="url(#gaugeGradient)" stroke-width="10" stroke-linecap="round"/>
+                <defs>
+                    <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#4caf50"/>
+                        <stop offset="45%" stop-color="#ffd54f"/>
+                        <stop offset="75%" stop-color="#ff9800"/>
+                        <stop offset="100%" stop-color="#e53935"/>
+                    </linearGradient>
+                </defs>
+                <line class="needle" x1="65" y1="65" x2="65" y2="16" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+                <circle cx="65" cy="65" r="6" fill="#ffffff"/>
+            </svg>
+            <div class="gauge-label">Kockázati szint</div>
+        </div>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2026 A Család Kapitánya — Biztosítási tanácsadás</p>
+        <p><a href="contact.html">Kapcsolat</a> | <a href="#">Adatvédelem</a></p>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

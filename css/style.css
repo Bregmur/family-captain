@@ -1,0 +1,730 @@
+/* ============================================================
+   A CSALÁD KAPITÁNYA — realistic scene edition
+   ============================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    overflow-x: hidden;
+    background: #eef5fa;
+    color: #1f3b4d;
+}
+
+a {
+    color: inherit;
+}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+
+.site-nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 5%;
+}
+
+.site-nav .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 1.15rem;
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.45);
+    letter-spacing: 0.02em;
+}
+
+.site-nav .brand .wheel {
+    font-size: 1.3rem;
+}
+
+.site-nav a.nav-link {
+    text-decoration: none;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 10px 22px;
+    border: 1.5px solid rgba(255,255,255,0.75);
+    border-radius: 50px;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.35);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(2px);
+}
+
+.site-nav a.nav-link:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: #fff;
+}
+
+/* ============================================================
+   HERO / SCENE STAGE
+   ============================================================ */
+
+.hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    min-height: 640px;
+    overflow: hidden;
+    background: #16232d;
+}
+
+.scene {
+    position: absolute;
+    inset: 0;
+}
+
+.scene-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center 60%;
+    opacity: 0;
+    transform: scale(1.05);
+    transform-origin: center 55%;
+    transition: opacity 2.2s ease;
+    animation: rockCalm 9s ease-in-out infinite;
+}
+
+.scene-bg.active {
+    opacity: 1;
+    z-index: 1;
+}
+
+/* Continuous "the boat is always moving" loop. Amplitude/speed step up with
+   the weather via [data-weather] on .hero (set live by main.js), so the same
+   idle-loop-then-cut behaviour you'd get from a looping video is simulated
+   here with plain CSS on the existing stills — no extra video assets needed. */
+@keyframes rockCalm {
+    0%   { transform: scale(1.05)  translateY(0)      rotate(0deg); }
+    25%  { transform: scale(1.055) translateY(-0.4%)  rotate(-0.25deg); }
+    50%  { transform: scale(1.06)  translateY(0.3%)   rotate(0.15deg); }
+    75%  { transform: scale(1.055) translateY(-0.2%)  rotate(0.2deg); }
+    100% { transform: scale(1.05)  translateY(0)      rotate(0deg); }
+}
+
+@keyframes rockChoppy {
+    0%   { transform: scale(1.06)  translateY(0)      rotate(0deg); }
+    20%  { transform: scale(1.065) translateY(-0.7%)  rotate(-0.5deg); }
+    45%  { transform: scale(1.07)  translateY(0.5%)   rotate(0.35deg); }
+    70%  { transform: scale(1.065) translateY(-0.5%)  rotate(0.45deg); }
+    100% { transform: scale(1.06)  translateY(0)      rotate(0deg); }
+}
+
+@keyframes rockStorm {
+    0%   { transform: scale(1.07)  translateY(0)      rotate(0deg); }
+    15%  { transform: scale(1.08)  translateY(-1.1%)  rotate(-0.9deg); }
+    35%  { transform: scale(1.075) translateY(0.8%)   rotate(0.7deg); }
+    55%  { transform: scale(1.085) translateY(-0.9%)  rotate(-0.6deg); }
+    75%  { transform: scale(1.078) translateY(0.6%)   rotate(0.8deg); }
+    100% { transform: scale(1.07)  translateY(0)      rotate(0deg); }
+}
+
+.hero[data-weather="cloudy"] .scene-bg {
+    animation: rockChoppy 6.5s ease-in-out infinite;
+}
+
+.hero[data-weather="storm"] .scene-bg {
+    animation: rockStorm 4.2s ease-in-out infinite;
+}
+
+.hero[data-weather="tempest"] .scene-bg {
+    animation: rockStorm 3s ease-in-out infinite;
+}
+
+/* CLOUDS/MIST — soft drifting light patches across the sky, brought in and
+   sped up as the weather worsens */
+.atmosphere {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    background-image:
+        radial-gradient(ellipse 45% 30% at 20% 15%, rgba(255,255,255,0.35), transparent 70%),
+        radial-gradient(ellipse 55% 35% at 70% 8%,  rgba(255,255,255,0.28), transparent 70%),
+        radial-gradient(ellipse 40% 25% at 45% 22%, rgba(220,225,230,0.30), transparent 70%);
+    background-repeat: no-repeat;
+    background-size: 160% 160%;
+    filter: blur(2px);
+    transition: opacity 2s ease;
+    animation: cloudDrift 40s linear infinite;
+}
+
+@keyframes cloudDrift {
+    0%   { background-position: 0% 0%, 20% 0%, 60% 0%; }
+    100% { background-position: -100% 0%, -80% 0%, -40% 0%; }
+}
+
+.hero[data-weather="cloudy"] .atmosphere {
+    opacity: 0.5;
+}
+
+.hero[data-weather="storm"] .atmosphere,
+.hero[data-weather="tempest"] .atmosphere {
+    opacity: 0.6;
+    animation-duration: 18s;
+    filter: blur(3px) brightness(0.7);
+}
+
+/* WATER SHIMMER — low-band glint drifting across the waterline */
+.water-shimmer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 42%;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.3;
+    background-image: repeating-linear-gradient(
+        100deg,
+        rgba(255,255,255,0.16) 0px,
+        rgba(255,255,255,0.16) 2px,
+        transparent 2px,
+        transparent 26px
+    );
+    background-size: 200% 100%;
+    mix-blend-mode: overlay;
+    animation: shimmerDrift 5.5s linear infinite;
+}
+
+@keyframes shimmerDrift {
+    0%   { background-position: 0% 0%; }
+    100% { background-position: -200px 0%; }
+}
+
+.hero[data-weather="storm"] .water-shimmer,
+.hero[data-weather="tempest"] .water-shimmer {
+    opacity: 0.45;
+    animation-duration: 2.8s;
+}
+
+/* darken the scene slightly so overlaid text/cards stay legible */
+.scene::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.28) 0%,
+        rgba(0,0,0,0.02) 30%,
+        rgba(0,0,0,0.05) 60%,
+        rgba(0,0,0,0.45) 100%
+    );
+    pointer-events: none;
+}
+
+/* RAIN — fades in for stormy stages */
+.rain-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    opacity: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+        70deg,
+        rgba(255,255,255,0.18) 0px,
+        rgba(255,255,255,0.18) 1px,
+        transparent 1px,
+        transparent 9px
+    );
+    background-size: 140% 140%;
+    transition: opacity 1.5s ease;
+    animation: rainFall 0.35s linear infinite;
+}
+
+.storm-active .rain-overlay {
+    opacity: 0.5;
+}
+
+.tempest-active .rain-overlay {
+    opacity: 0.8;
+}
+
+@keyframes rainFall {
+    0%   { background-position: 0 0; }
+    100% { background-position: -60px 140px; }
+}
+
+/* LIGHTNING */
+.lightning {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    background: white;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.tempest-active .lightning {
+    animation: flicker 6.5s infinite;
+}
+
+@keyframes flicker {
+    0%, 92%, 100% { opacity: 0; }
+    93% { opacity: 0.55; }
+    94% { opacity: 0; }
+    95.5% { opacity: 0.4; }
+    96% { opacity: 0; }
+}
+
+/* ============================================================
+   INTRO
+   ============================================================ */
+
+.intro {
+    position: absolute;
+    z-index: 10;
+    top: 50%;
+    left: 8%;
+    transform: translateY(-50%);
+    width: 90%;
+    max-width: 640px;
+    text-align: left;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+.intro.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.intro .eyebrow {
+    display: inline-block;
+    color: #ffd54f;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 0.82rem;
+    margin-bottom: 14px;
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.5);
+}
+
+.intro h1 {
+    color: #ffffff;
+    font-size: 3.1rem;
+    line-height: 1.15;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.45);
+}
+
+.intro p {
+    color: rgba(255,255,255,0.92);
+    font-size: 1.15rem;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.4);
+    max-width: 520px;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+#startButton,
+.pill-button {
+    display: inline-block;
+    border: none;
+    cursor: pointer;
+    background: #ffd54f;
+    color: #2a2200;
+    padding: 16px 38px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 50px;
+    text-decoration: none;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.25);
+    transition: all 0.3s ease;
+}
+
+#startButton:hover,
+.pill-button:hover {
+    background: #ffca28;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 26px rgba(0,0,0,0.3);
+}
+
+.pill-button.secondary {
+    background: transparent;
+    color: #ffffff;
+    border: 1.5px solid rgba(255,255,255,0.8);
+    box-shadow: none;
+}
+
+.pill-button.secondary:hover {
+    background: rgba(255,255,255,0.12);
+}
+
+/* ============================================================
+   QUESTION / RESULT CARD
+   ============================================================ */
+
+.question-overlay {
+    position: absolute;
+    z-index: 20;
+    top: 50%;
+    left: 8%;
+    transform: translateY(-50%);
+    width: 90%;
+    max-width: 560px;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.question-overlay.hidden {
+    display: none;
+}
+
+.question-box {
+    background: rgba(255,255,255,0.96);
+    padding: 34px 38px;
+    border-radius: 22px;
+    text-align: left;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 20px 45px rgba(0,0,0,0.35);
+}
+
+.question-box .eyebrow {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #2b7bb0;
+    margin-bottom: 10px;
+}
+
+.question-box h2 {
+    margin-bottom: 24px;
+    color: #1f3b4d;
+    font-size: 1.45rem;
+    line-height: 1.35;
+    text-align: left;
+}
+
+#answers {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+}
+
+#answers button {
+    padding: 15px 20px;
+    border: 1.5px solid #d8e6ee;
+    border-radius: 12px;
+    background: #f4f9fc;
+    color: #1f3b4d;
+    font-size: 1rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#answers button:hover {
+    background: #2b7bb0;
+    border-color: #2b7bb0;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.question-box.result h2 {
+    text-align: left;
+    color: #1f3b4d;
+}
+
+.question-box.result .result-tier {
+    display: inline-block;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.95rem;
+    padding: 5px 14px;
+    border-radius: 50px;
+    margin-bottom: 16px;
+}
+
+.result-tier.safe    { background: #e3f6df; color: #2f8f3a; }
+.result-tier.watch   { background: #fff3d6; color: #a9760d; }
+.result-tier.warn    { background: #ffe4d1; color: #c05c1d; }
+.result-tier.danger  { background: #fde0e0; color: #c62828; }
+
+.question-box.result .result-summary {
+    text-align: left;
+    color: #33475a;
+    line-height: 1.65;
+    margin-bottom: 22px;
+    font-size: 1.02rem;
+}
+
+.question-box.result .result-score {
+    color: #6b7c8a;
+    font-size: 0.92rem;
+    margin-bottom: 24px;
+}
+
+.question-box.result .result-actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+/* the secondary pill is designed for dark hero backgrounds; inside the
+   light question-box it needs dark ink instead of white */
+.question-box .pill-button.secondary {
+    color: #1f3b4d;
+    border-color: #b9c9d3;
+}
+
+.question-box .pill-button.secondary:hover {
+    background: rgba(31,59,77,0.08);
+    border-color: #1f3b4d;
+}
+
+/* ============================================================
+   STATUS CALLOUT — bottom-left risk label over the scene
+   ============================================================ */
+
+.status-callout {
+    position: absolute;
+    z-index: 15;
+    left: 5%;
+    bottom: 60px;
+    max-width: 380px;
+    color: white;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.status-callout.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.status-callout .status-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    text-shadow: 1px 1px 8px rgba(0,0,0,0.6);
+}
+
+.status-callout .status-title.safe   { color: #7fd858; }
+.status-callout .status-title.watch  { color: #ffd54f; }
+.status-callout .status-title.warn   { color: #ffa458; }
+.status-callout .status-title.danger { color: #ff5c5c; }
+
+.status-callout p {
+    font-size: 0.95rem;
+    line-height: 1.45;
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.55);
+}
+
+/* ============================================================
+   GAUGE — bottom-right risk meter (pure CSS/SVG, live)
+   ============================================================ */
+
+.gauge {
+    position: absolute;
+    z-index: 15;
+    right: 5%;
+    bottom: 50px;
+    width: 138px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.gauge.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.gauge svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,0.4));
+}
+
+.gauge .needle {
+    transform-origin: 65px 65px;
+    transition: transform 1.4s cubic-bezier(0.45, 0, 0.55, 1);
+    transform: rotate(var(--needle, -90deg));
+}
+
+.gauge .gauge-label {
+    margin-top: 6px;
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.6);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+footer {
+    background: #123249;
+    color: white;
+    text-align: center;
+    padding: 26px;
+}
+
+footer a {
+    color: #ffd54f;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================================
+   CONTACT PAGE
+   ============================================================ */
+
+.contact-hero {
+    position: relative;
+    height: 46vh;
+    min-height: 320px;
+    overflow: hidden;
+}
+
+.contact-hero .scene-bg {
+    animation: none;
+    transform: scale(1.02);
+}
+
+.contact-hero .intro {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    max-width: 720px;
+}
+
+.contact-hero .intro h1 {
+    font-size: 2.5rem;
+}
+
+.contact-section {
+    max-width: 640px;
+    margin: -70px auto 60px;
+    position: relative;
+    z-index: 20;
+    padding: 0 20px;
+}
+
+.contact-section .question-box {
+    text-align: left;
+}
+
+.contact-section .question-box h2 {
+    text-align: left;
+}
+
+.contact-section form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.contact-section input,
+.contact-section textarea {
+    padding: 14px;
+    border-radius: 10px;
+    border: 1.5px solid #d8e6ee;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.contact-section input:focus,
+.contact-section textarea:focus {
+    outline: none;
+    border-color: #2b7bb0;
+}
+
+#formNote {
+    margin-top: 16px;
+    color: #2b7bb0;
+    display: none;
+    font-weight: 600;
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+    .site-nav {
+        padding: 16px 6%;
+    }
+
+    .site-nav .brand {
+        font-size: 0.92rem;
+        white-space: nowrap;
+    }
+
+    .site-nav a.nav-link {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    .intro {
+        left: 6%;
+        top: 42%;
+    }
+
+    .question-overlay {
+        left: 6%;
+        top: 40%;
+    }
+
+    .intro h1 {
+        font-size: 2.1rem;
+    }
+
+    .intro p {
+        font-size: 1rem;
+    }
+
+    .question-box {
+        padding: 24px;
+    }
+
+    .status-callout {
+        max-width: 260px;
+        bottom: 130px;
+    }
+
+    .gauge {
+        width: 100px;
+        bottom: 130px;
+    }
+}
