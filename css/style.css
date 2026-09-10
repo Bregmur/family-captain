@@ -238,37 +238,6 @@ a {
     pointer-events: none;
 }
 
-/* RAIN — fades in for stormy stages */
-.rain-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 4;
-    opacity: 0;
-    pointer-events: none;
-    background-image: repeating-linear-gradient(
-        70deg,
-        rgba(255,255,255,0.18) 0px,
-        rgba(255,255,255,0.18) 1px,
-        transparent 1px,
-        transparent 9px
-    );
-    background-size: 140% 140%;
-    transition: opacity 1.5s ease;
-    animation: rainFall 0.35s linear infinite;
-}
-
-.storm-active .rain-overlay {
-    opacity: 0.5;
-}
-
-.tempest-active .rain-overlay {
-    opacity: 0.8;
-}
-
-@keyframes rainFall {
-    0%   { background-position: 0 0; }
-    100% { background-position: -60px 140px; }
-}
 
 /* LIGHTNING */
 .lightning {
