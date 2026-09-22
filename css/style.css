@@ -76,6 +76,16 @@ a {
    HERO / SCENE STAGE
    ============================================================ */
 
+/* .stage wraps the hero image and the quiz panel. On desktop the panel is
+   absolutely positioned over the hero (inset:0), so it looks exactly like
+   before -- the question card floats over the full-bleed scene. On mobile
+   (see the max-width:768px rules further down) the panel instead drops into
+   normal document flow below a shorter hero, so the ship art stays visible
+   above it instead of being covered by the card. */
+.stage {
+    position: relative;
+}
+
 .hero {
     position: relative;
     width: 100%;
@@ -89,6 +99,22 @@ a {
     min-height: min(640px, 100vh);
     overflow: hidden;
     background: #16232d;
+}
+
+.quiz-panel {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    /* Lets clicks pass through to the hero underneath (e.g. the start
+       button) when there's nothing interactive showing yet; the question
+       card and its buttons re-enable pointer events on themselves below. */
+    pointer-events: none;
+}
+
+.quiz-panel .question-overlay,
+.quiz-panel .status-callout,
+.quiz-panel .gauge {
+    pointer-events: auto;
 }
 
 .scene {
@@ -681,35 +707,22 @@ footer a:hover {
         white-space: nowrap;
     }
 
-    /* The intro and question card used to be centred with top:50% /
-       translateY(-50%), which works fine on tall screens but lets a tall
-       card (long questions, the multi-line result summary) grow downward
-       past the status callout / gauge that sit pinned near the bottom —
-       that's the overlap seen on shorter phones. Anchoring with both top
-       and bottom instead gives each a fixed, safe zone: the box is
-       vertically centred *inside* that zone via flex, and can never push
-       into the reserved bottom strip. */
-    .intro,
-    .question-overlay {
-        left: 6%;
-        top: 78px;
-        bottom: 210px;
-        transform: none;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+    /* The hero shrinks to a band across the top (like the contact page's
+       hero) instead of filling the whole screen, so the ship art stays
+       visible at all times -- the question card no longer has to float on
+       top of it to be seen. :not(.contact-hero) keeps this from fighting
+       with that page's own (differently-sized) hero rules below. */
+    .hero:not(.contact-hero) {
+        height: 50vh;
+        min-height: 360px;
     }
 
     .intro {
+        left: 6%;
         width: 88%;
-    }
-
-    /* .intro is now a flex column (see above) so it can be vertically
-       centred within its top/bottom-bound zone; without this the button
-       would stretch to the container's full width instead of hugging its
-       text like a normal pill button. */
-    .intro #startButton {
-        align-self: flex-start;
+        top: 50%;
+        bottom: auto;
+        transform: translateY(-50%);
     }
 
     .intro h1 {
@@ -720,24 +733,52 @@ footer a:hover {
         font-size: 1rem;
     }
 
+    /* The quiz panel now lives in normal document flow below the (shorter)
+       hero instead of floating over it, so it drops out of the absolute
+       overlay positioning entirely on mobile. */
+    .quiz-panel {
+        position: static;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+        padding: 28px 6% 40px;
+        background: #123249;
+    }
+
+    /* Nothing to show before the quiz starts -- collapse the panel rather
+       than leaving an empty coloured band under the hero. */
+    .quiz-panel:has(.question-overlay.hidden) {
+        display: none;
+    }
+
+    .question-overlay {
+        position: static;
+        width: 100%;
+        max-width: 480px;
+        left: auto;
+        top: auto;
+        bottom: auto;
+        transform: none;
+    }
+
     .question-box {
         padding: 24px;
-        /* Safety net: if a question/result card is still too tall for the
-           reserved zone (e.g. the long result summary on a very short
-           phone), it scrolls internally instead of overlapping the status
-           callout or gauge below it. */
-        max-height: 100%;
-        overflow-y: auto;
+    }
+
+    .status-callout,
+    .gauge {
+        position: static;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        max-width: none;
     }
 
     .status-callout {
-        max-width: 260px;
-        bottom: 100px;
-    }
-
-    .gauge {
-        width: 100px;
-        bottom: 90px;
+        width: 100%;
+        max-width: 480px;
+        text-align: center;
     }
 
     .contact-hero {
@@ -773,20 +814,24 @@ footer a:hover {
         padding: 10px 5%;
     }
 
-    .intro,
-    .question-overlay {
-        left: 6%;
-        width: 88%;
-        top: 54px;
-        bottom: 92px;
-        transform: none;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+    /* Same idea as the portrait breakpoint above: shrink the hero to a band
+       instead of filling the screen, and drop the quiz panel into normal
+       flow below it, so short landscape phones don't hide the ship art
+       behind the card either. */
+    .hero:not(.contact-hero) {
+        height: 74vh;
+        min-height: 260px;
     }
 
-    .intro #startButton {
-        align-self: flex-start;
+    /* Anchored from the top (not vertically centred) so it can never climb
+       up under the nav bar regardless of how much text it holds -- this is
+       the shortest hero we ever use, so there's little room to spare. */
+    .intro {
+        left: 6%;
+        width: 60%;
+        top: 50px;
+        bottom: auto;
+        transform: none;
     }
 
     .intro h1 {
@@ -803,10 +848,32 @@ footer a:hover {
         margin-bottom: 16px;
     }
 
+    .quiz-panel {
+        position: static;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 5% 22px;
+        background: #123249;
+    }
+
+    .quiz-panel:has(.question-overlay.hidden) {
+        display: none;
+    }
+
+    .question-overlay {
+        position: static;
+        width: 100%;
+        max-width: 480px;
+        left: auto;
+        top: auto;
+        bottom: auto;
+        transform: none;
+    }
+
     .question-box {
         padding: 18px 22px;
-        max-height: 100%;
-        overflow-y: auto;
     }
 
     .question-box h2 {
@@ -814,9 +881,17 @@ footer a:hover {
         margin-bottom: 14px;
     }
 
+    .status-callout,
+    .gauge {
+        position: static;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        max-width: none;
+    }
+
     .status-callout {
-        bottom: 12px;
-        max-width: 220px;
+        max-width: 260px;
     }
 
     .status-callout .status-title {
