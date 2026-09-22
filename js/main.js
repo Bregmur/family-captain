@@ -293,15 +293,23 @@ function showQuestion() {
             if (current.flag === "spouse") state.spouse = answer.value;
             if (current.flag === "kids") state.kids = answer.value;
 
+            // Hide the question card for a beat so the scene/weather change
+            // underneath is actually visible -- on mobile the card covers
+            // most of the screen, so swapping straight to the next question
+            // meant the background never got a chance to be seen changing.
+            quizEl.classList.add("card-hidden");
             updateRisk(totalPoints / MAX_POINTS);
 
             currentQuestion++;
 
-            if (currentQuestion < questions.length) {
-                showQuestion();
-            } else {
-                showSummary();
-            }
+            setTimeout(() => {
+                if (currentQuestion < questions.length) {
+                    showQuestion();
+                } else {
+                    showSummary();
+                }
+                quizEl.classList.remove("card-hidden");
+            }, 2000);
         });
 
         answersEl.appendChild(button);

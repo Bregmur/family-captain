@@ -368,6 +368,16 @@ a {
     display: none;
 }
 
+/* Briefly fades the card out between questions so the scene/weather change
+   underneath is visible instead of being hidden behind it the instant an
+   answer is picked. Opacity only (no display:none) so the transition
+   below actually animates, and the card stays out of the way (but keeps
+   its layout space, so nothing else jumps) while it's invisible. */
+.question-overlay.card-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
 .question-box {
     background: rgba(255,255,255,0.96);
     padding: 34px 38px;
