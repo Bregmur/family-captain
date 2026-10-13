@@ -456,6 +456,73 @@ a {
     transform: translateY(-2px);
 }
 
+/* Small helper line above a multi-select question ("Több válasz is
+   kiválasztható."), sitting just above the checkbox-style options. */
+.answers-hint {
+    font-size: 0.85rem;
+    color: #6b7c8a;
+    margin-bottom: -4px;
+}
+
+/* Checkbox-style options for the multi-select question: clicking toggles
+   selection instead of advancing immediately, so each option needs its own
+   persistent "on" state rather than just a hover effect. */
+#answers button.multi-choice {
+    position: relative;
+    padding-left: 48px;
+}
+
+#answers button.multi-choice::before {
+    content: "";
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid #b9c9d3;
+    border-radius: 5px;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+#answers button.multi-choice:hover::before {
+    border-color: #2b7bb0;
+}
+
+#answers button.multi-choice.selected {
+    background: #eaf3fa;
+    border-color: #2b7bb0;
+    color: #1f3b4d;
+    transform: none;
+}
+
+#answers button.multi-choice.selected::before {
+    background: #2b7bb0;
+    border-color: #2b7bb0;
+}
+
+#answers button.multi-choice.selected::after {
+    content: "✓";
+    position: absolute;
+    left: 19px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* The "Tovább" button that closes out a multi-select question — reuses the
+   yellow pill styling so it reads as an action, distinct from the toggle
+   options above it. */
+#answers .continue-button {
+    margin-top: 4px;
+    align-self: flex-start;
+    text-align: center;
+}
+
 .question-box.result h2 {
     text-align: left;
     color: #1f3b4d;
@@ -483,6 +550,38 @@ a {
     line-height: 1.65;
     margin-bottom: 22px;
     font-size: 1.02rem;
+}
+
+.question-box.result .result-risks {
+    background: #f4f8fb;
+    border: 1px solid #dce6ec;
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 22px;
+    text-align: left;
+}
+
+.question-box.result .result-risks-label {
+    font-weight: 700;
+    color: #1f3b4d;
+    margin: 0 0 10px;
+}
+
+.question-box.result .result-risks-list {
+    margin: 0 0 14px;
+    padding-left: 22px;
+    color: #33475a;
+    line-height: 1.55;
+}
+
+.question-box.result .result-risks-list li {
+    margin-bottom: 4px;
+}
+
+.question-box.result .result-risks-cta {
+    margin: 0;
+    color: #33475a;
+    line-height: 1.6;
 }
 
 .question-box.result .result-score {
