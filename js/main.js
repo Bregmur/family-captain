@@ -17,7 +17,7 @@
 const questions = [
     {
         id: "gender",
-        label: "0. kérdés",
+        label: "Üdvözöllek",
         question: "Férfi vagy nő vagy?",
         flag: "gender",
         answers: [
@@ -48,7 +48,7 @@ const questions = [
     },
     {
         id: "kidsImportance",
-        label: "2/3. kérdés (opcionális)",
+        label: "2/3. kérdés",
         question: "Mennyire fontos neked, hogy a gyermeked jövője biztonságban legyen?",
         // Csak azoknak jelenik meg, akiknek már van gyermekük -- a szöveg
         // meglévő gyermekre utal ("a gyermeked jövője").
