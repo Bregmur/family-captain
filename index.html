@@ -62,29 +62,34 @@
                 </div>
             </div>
 
-            <!-- STATUS CALLOUT -->
-            <div class="status-callout" id="statusCallout">
-                <div class="status-title" id="statusTitle"></div>
-                <p id="statusText"></p>
-            </div>
+            <!-- RISK HUD: status callout + gauge (can flash to top of screen on mobile) -->
+            <div class="risk-hud" id="riskHud">
 
-            <!-- GAUGE -->
-            <div class="gauge" id="gauge">
-                <svg viewBox="0 0 130 75">
-                    <path d="M10,65 A55,55 0 0,1 120,65" fill="none" stroke="#3a4a55" stroke-width="10" stroke-linecap="round"/>
-                    <path d="M10,65 A55,55 0 0,1 120,65" fill="none" stroke="url(#gaugeGradient)" stroke-width="10" stroke-linecap="round"/>
-                    <defs>
-                        <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#4caf50"/>
-                            <stop offset="45%" stop-color="#ffd54f"/>
-                            <stop offset="75%" stop-color="#ff9800"/>
-                            <stop offset="100%" stop-color="#e53935"/>
-                        </linearGradient>
-                    </defs>
-                    <line class="needle" x1="65" y1="65" x2="65" y2="16" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
-                    <circle cx="65" cy="65" r="6" fill="#ffffff"/>
-                </svg>
-                <div class="gauge-label">Kockázati szint</div>
+                <!-- STATUS CALLOUT -->
+                <div class="status-callout" id="statusCallout">
+                    <div class="status-title" id="statusTitle"></div>
+                    <p id="statusText"></p>
+                </div>
+
+                <!-- GAUGE -->
+                <div class="gauge" id="gauge">
+                    <svg viewBox="0 0 130 75">
+                        <path d="M10,65 A55,55 0 0,1 120,65" fill="none" stroke="#3a4a55" stroke-width="10" stroke-linecap="round"/>
+                        <path d="M10,65 A55,55 0 0,1 120,65" fill="none" stroke="url(#gaugeGradient)" stroke-width="10" stroke-linecap="round"/>
+                        <defs>
+                            <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#4caf50"/>
+                                <stop offset="45%" stop-color="#ffd54f"/>
+                                <stop offset="75%" stop-color="#ff9800"/>
+                                <stop offset="100%" stop-color="#e53935"/>
+                            </linearGradient>
+                        </defs>
+                        <line class="needle" x1="65" y1="65" x2="65" y2="16" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+                        <circle cx="65" cy="65" r="6" fill="#ffffff"/>
+                    </svg>
+                    <div class="gauge-label">Kockázati szint</div>
+                </div>
+
             </div>
 
         </div>

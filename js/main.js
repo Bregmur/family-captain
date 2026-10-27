@@ -221,6 +221,7 @@ const questionEyebrowEl = document.getElementById("questionEyebrow");
 const answersEl = document.getElementById("answers");
 const startButton = document.getElementById("startButton");
 
+const riskHudEl = document.getElementById("riskHud");
 const statusCalloutEl = document.getElementById("statusCallout");
 const statusTitleEl = document.getElementById("statusTitle");
 const statusTextEl = document.getElementById("statusText");
@@ -418,6 +419,14 @@ function advance(pointsToAdd, flagUpdate) {
     quizEl.classList.add("card-hidden");
     updateRisk(totalPoints / MAX_POINTS);
 
+    // Jump back to the top of the page so the background scene is visible
+    // again, and -- on mobile, where the status callout + gauge normally
+    // sit in static flow below the question card -- "flash" them up near
+    // the top of the screen for this same transition window, so the updated
+    // risk level is actually seen instead of scrolled out of view.
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    riskHudEl.classList.add("flash-status");
+
     currentQuestion = nextApplicableIndex(currentQuestion + 1);
 
     setTimeout(() => {
@@ -427,6 +436,7 @@ function advance(pointsToAdd, flagUpdate) {
             showSummary();
         }
         quizEl.classList.remove("card-hidden");
+        riskHudEl.classList.remove("flash-status");
     }, 2000);
 }
 

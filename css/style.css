@@ -112,8 +112,7 @@ a {
 }
 
 .quiz-panel .question-overlay,
-.quiz-panel .status-callout,
-.quiz-panel .gauge {
+.quiz-panel .risk-hud {
     pointer-events: auto;
 }
 
@@ -904,6 +903,21 @@ footer a:hover {
         padding: 24px;
     }
 
+    /* The status callout + gauge now share a wrapper so the pair can be
+       pulled out of normal flow together and "flashed" near the top of the
+       screen right after an answer is submitted (see .flash-status below
+       and the advance() logic in main.js), then dropped back under the next
+       question card once it appears. The gap used to come from the
+       .quiz-panel flex container directly separating these two elements;
+       now that they're both inside .risk-hud, it's reproduced here instead. */
+    .risk-hud {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+        width: 100%;
+    }
+
     .status-callout,
     .gauge {
         position: static;
@@ -919,13 +933,32 @@ footer a:hover {
         text-align: center;
     }
 
+    /* The "flash" state: fixed near the top of the viewport, over the hero
+       art, for the ~2s transition window between answering and the next
+       question appearing (toggled via JS). Scrolling to the top at the same
+       moment -- also done in main.js -- is what makes sure this is actually
+       in view even if the user had scrolled down into the question card. */
+    .risk-hud.flash-status {
+        position: fixed;
+        top: 76px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 40;
+        width: 90%;
+        max-width: 380px;
+        background: rgba(8, 20, 30, 0.6);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border-radius: 16px;
+        padding: 16px;
+    }
+
     /* Once the quiz is finished, the result card already restates the final
        risk tier -- the status callout and gauge below it (left over from the
        last question, now static in normal flow instead of floating in a
        corner like on desktop) would otherwise repeat the same "VESZÉLYEZTETETT!"
        headline a second time right under the card. */
-    .quiz-panel:has(.question-box.result) .status-callout,
-    .quiz-panel:has(.question-box.result) .gauge {
+    .quiz-panel:has(.question-box.result) .risk-hud {
         display: none;
     }
 
@@ -1047,6 +1080,15 @@ footer a:hover {
         margin-bottom: 14px;
     }
 
+    /* Same idea as the portrait breakpoint -- see the comment there. */
+    .risk-hud {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        width: 100%;
+    }
+
     .status-callout,
     .gauge {
         position: static;
@@ -1078,10 +1120,26 @@ footer a:hover {
         font-size: 0.62rem;
     }
 
+    /* Same "flash to top" treatment as the portrait breakpoint, just with a
+       smaller top offset to match this breakpoint's shorter nav/hero. */
+    .risk-hud.flash-status {
+        position: fixed;
+        top: 46px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 40;
+        width: 80%;
+        max-width: 300px;
+        background: rgba(8, 20, 30, 0.6);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border-radius: 14px;
+        padding: 12px;
+    }
+
     /* Same reasoning as the portrait breakpoint: don't repeat the final risk
        tier a second time below the result card. */
-    .quiz-panel:has(.question-box.result) .status-callout,
-    .quiz-panel:has(.question-box.result) .gauge {
+    .quiz-panel:has(.question-box.result) .risk-hud {
         display: none;
     }
 
