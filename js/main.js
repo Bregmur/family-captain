@@ -17,7 +17,7 @@
 const questions = [
     {
         id: "gender",
-        label: "Üdvözöllek",
+        label: "0. kérdés",
         question: "Férfi vagy nő vagy?",
         flag: "gender",
         answers: [
@@ -48,7 +48,7 @@ const questions = [
     },
     {
         id: "kidsImportance",
-        label: "2/3. kérdés",
+        label: "2/3. kérdés (opcionális)",
         question: "Mennyire fontos neked, hogy a gyermeked jövője biztonságban legyen?",
         // Csak azoknak jelenik meg, akiknek már van gyermekük -- a szöveg
         // meglévő gyermekre utal ("a gyermeked jövője").
@@ -483,6 +483,33 @@ function showQuestion() {
     });
 }
 
+// Minden megválaszolt kérdést és a hozzá tartozó választ (szöveges formában)
+// egyetlen, emberi szemmel olvasható szöveggé fűz össze -- ezt a
+// contact.html olvassa ki a sessionStorage-ból, és csatolja a konzultációs
+// emailhez, hogy a tanácsadó előre lássa, mire számítson. Csak azok a
+// kérdések szerepelnek benne, amikre ténylegesen válaszolt a kitöltő
+// (a feltételes, kihagyott kérdések -- pl. a gyerek nélkülieknél a 2/3.
+// kérdés -- nem kerülnek bele).
+function buildQuizSummaryText() {
+    const lines = [];
+
+    questions.forEach(q => {
+        const answer = selectedAnswers[q.id];
+        if (answer === undefined) return;
+
+        const answerText = Array.isArray(answer)
+            ? (answer.length ? answer.join(", ") : "(nem jelölt meg semmit)")
+            : answer;
+
+        lines.push(`${q.question}\n→ ${answerText}`);
+    });
+
+    const tier = tierForPct(totalPoints / MAX_POINTS);
+    lines.push(`Összesített kockázati szint: ${tier.title} (${totalPoints} / ${MAX_POINTS} pont)`);
+
+    return lines.join("\n\n");
+}
+
 // A kiválasztott veszélyeket (5. kérdés, "events") egy rövid, a
 // konzultáció felé vezető blokká alakítja. Ha a kitöltő nem jelölt meg
 // semmit, egy általánosabb, de ugyanúgy a konzultációra sarkalló szöveget
@@ -511,6 +538,18 @@ function buildRisksHtml() {
 function showSummary() {
     const pct = totalPoints / MAX_POINTS;
     const tier = tierForPct(pct);
+
+    // A kvíz-válaszok összegzését a sessionStorage-ba mentjük -- ha innen a
+    // kitöltő a "Kérek konzultációt" gombbal a contact.html-re lép, az ottani
+    // szkript ezt kiolvassa és csatolja az emailhez. Ha a kitöltő kvíz
+    // nélkül, közvetlenül nyitja meg a kapcsolat oldalt, egyszerűen nincs mit
+    // kiolvasni, és a levél a megszokott (kvíz nélküli) formában megy el.
+    try {
+        sessionStorage.setItem("familyCaptainQuizSummary", buildQuizSummaryText());
+    } catch (err) {
+        // sessionStorage nem elérhető (pl. privát böngészés) -- a kontakt
+        // form enélkül is simán működik, csak a válaszok nem csatolódnak.
+    }
 
     quizEl.querySelector(".question-box").outerHTML = `
         <div class="question-box result">

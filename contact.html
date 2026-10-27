@@ -72,11 +72,33 @@ document.getElementById('contactForm').addEventListener('submit', async function
     submitButton.disabled = true;
     submitButton.textContent = 'Küldés...';
 
+    const formData = new FormData(form);
+
+    // Ha a kitöltő előtte végigcsinálta a kvízt (index.html), a válaszai itt
+    // elérhetők a sessionStorage-ból -- ezeket az üzenet elé fűzzük, hogy a
+    // tanácsadó az emailben előre lássa, mire számítson. Ha nem volt kvíz
+    // (vagy a sessionStorage nem elérhető), a levél a megszokott,
+    // kvíz-összegzés nélküli formában megy el.
+    let quizSummary = null;
+    try {
+        quizSummary = sessionStorage.getItem('familyCaptainQuizSummary');
+    } catch (err) {
+        // sessionStorage nem elérhető (pl. privát böngészés) -- nem gond
+    }
+
+    if (quizSummary) {
+        const userMessage = (formData.get('message') || '').toString().trim();
+        const combined = userMessage
+            ? `${userMessage}\n\n--- Kvíz válaszok ---\n${quizSummary}`
+            : `--- Kvíz válaszok ---\n${quizSummary}`;
+        formData.set('message', combined);
+    }
+
     try {
         const response = await fetch('https://api.web3forms.com/submit', {
             method: 'POST',
             headers: { 'Accept': 'application/json' },
-            body: new FormData(form)
+            body: formData
         });
         const result = await response.json();
 
@@ -85,6 +107,11 @@ document.getElementById('contactForm').addEventListener('submit', async function
             formNote.style.color = '';
             formNote.style.display = 'block';
             form.reset();
+            try {
+                sessionStorage.removeItem('familyCaptainQuizSummary');
+            } catch (err) {
+                // nem gond, ha nem törölhető
+            }
         } else {
             throw new Error(result.message || 'Ismeretlen hiba történt.');
         }
