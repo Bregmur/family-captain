@@ -309,6 +309,28 @@ function preloadableUrl(gender, spouse, dependent, weatherIdx, onResolved) {
     tryNext(0);
 }
 
+// A "no" (női kapitány) + társ kombinációknál a generált képeken a férj
+// következetesen a kép jobb szélére esik (feltehetően mert minden ilyen
+// jelenet ugyanarra a "kapitány + társ a kormánynál" horgonyképre
+// hivatkozva készült). Asztali nézetben ez nem probléma -- ott a kép
+// szélessége közel esik a fotó natív arányához, így alig vágódik le
+// vízszintesen --, de mobilon a lerövidített, széles hajó-sáv miatt a kép
+// vízszintesen jóval erősebben be van zoomolva (a magasság tölti ki a
+// konténert), és a középre igazított vágás pont a jobb szélen álló férjet
+// vágta le teljesen. A `crew-ferfi-*` (férfi kapitány + feleség) képeken ez
+// nem jelentkezik, ott a pár középen/kicsit jobbra áll, belefér a
+// középre igazított vágásba -- ott nincs is szükség eltolásra.
+// A "kids" (3 gyerek) variánsnál a család túl szélesen (gyerekek a bal
+// szélen, apa a jobb szélen) oszlik el ahhoz, hogy BÁRMELYIK vízszintes
+// vágás mindenkit mutasson egyszerre -- azt változatlanul hagytuk (ez nem
+// az itt jelentett hiba, és a jelenlegi középre igazított vágás legalább a
+// gyerekeket + anyát mutatja).
+function scenePositionFix(gender, spouse, dependent) {
+    if (gender === "no" && spouse && dependent === "none") return "spouseRight";
+    if (gender === "no" && spouse && dependent === "baby") return "spouseRightBaby";
+    return "";
+}
+
 function setScene(gender, spouse, dependent, weatherIdx) {
     // A 0. kérdésig (amíg a nem ismeretlen) az üres, kikötőben álló hajót
     // mutatjuk -- ezt a showDock() már beállította, itt nincs teendő.
@@ -324,6 +346,7 @@ function setScene(gender, spouse, dependent, weatherIdx) {
         const currentLayer = sceneLayers[activeLayerIndex];
 
         nextLayer.style.backgroundImage = `url('${url}')`;
+        nextLayer.dataset.posfix = scenePositionFix(gender, spouse, dependent);
         nextLayer.classList.add("active");
         currentLayer.classList.remove("active");
         activeLayerIndex = nextIndex;
