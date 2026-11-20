@@ -1122,6 +1122,88 @@ footer a:hover {
     .contact-section {
         margin-top: -40px;
     }
+
+    /* LEGAL PAGE TABLES (adatvedelem.html): at full width these are plain
+       data tables, but neither layout survives a narrow phone screen --
+       the long, non-wrapping row labels in .kv-table (e.g. "MNB
+       nyilvántartási szám (biztosításügynök)") and the three roughly-equal
+       columns in .cols-table both need far more than ~340px of usable
+       width, so the table as a whole grew wider than the viewport and
+       pushed its own text sideways into a horizontal scrollbar. Both get
+       turned into stacked "label above value" cards instead -- the classic
+       responsive-table reflow (table/tr/th/td forced to display:block) --
+       which has no minimum width to violate regardless of how long any
+       given label or value is.
+       .kv-table rows already read as a single label+value pair (the row's
+       own <th> becomes the label), so no markup change was needed beyond
+       the stacking. .cols-table has a real header row (Adat/Cél/Jogalap)
+       instead -- that row is hidden on mobile, and each <td> carries a
+       data-label attribute (added in adatvedelem.html) that a ::before
+       rule turns into its own small heading, so which column is which is
+       never lost. */
+    .legal-content table.kv-table,
+    .legal-content table.kv-table tbody,
+    .legal-content table.kv-table tr,
+    .legal-content table.kv-table th,
+    .legal-content table.kv-table td,
+    .legal-content table.cols-table,
+    .legal-content table.cols-table tbody,
+    .legal-content table.cols-table tr,
+    .legal-content table.cols-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .legal-content table.kv-table tr {
+        padding: 10px 0;
+        border-bottom: 1px solid #e3edf3;
+    }
+
+    .legal-content table.kv-table th,
+    .legal-content table.kv-table td {
+        padding: 2px 0;
+        border-bottom: none;
+        white-space: normal;
+    }
+
+    .legal-content table.kv-table th {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: #6c8291;
+        font-weight: 700;
+    }
+
+    .legal-content table.kv-table td {
+        color: #1f3b4d;
+        font-weight: 600;
+    }
+
+    .legal-content table.cols-table tr:first-child {
+        display: none;
+    }
+
+    .legal-content table.cols-table tr {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #e3edf3;
+    }
+
+    .legal-content table.cols-table td {
+        padding: 3px 0;
+        border-bottom: none;
+    }
+
+    .legal-content table.cols-table td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: #6c8291;
+        font-weight: 700;
+        margin-bottom: 2px;
+    }
 }
 
 /* Short viewports regardless of width — mainly phones in landscape, where
@@ -1315,5 +1397,71 @@ footer a:hover {
 
     .contact-section {
         margin-top: -30px;
+    }
+
+    /* Same "stack label over value" reflow as the portrait breakpoint above
+       -- see the comment there for why. */
+    .legal-content table.kv-table,
+    .legal-content table.kv-table tbody,
+    .legal-content table.kv-table tr,
+    .legal-content table.kv-table th,
+    .legal-content table.kv-table td,
+    .legal-content table.cols-table,
+    .legal-content table.cols-table tbody,
+    .legal-content table.cols-table tr,
+    .legal-content table.cols-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .legal-content table.kv-table tr {
+        padding: 10px 0;
+        border-bottom: 1px solid #e3edf3;
+    }
+
+    .legal-content table.kv-table th,
+    .legal-content table.kv-table td {
+        padding: 2px 0;
+        border-bottom: none;
+        white-space: normal;
+    }
+
+    .legal-content table.kv-table th {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: #6c8291;
+        font-weight: 700;
+    }
+
+    .legal-content table.kv-table td {
+        color: #1f3b4d;
+        font-weight: 600;
+    }
+
+    .legal-content table.cols-table tr:first-child {
+        display: none;
+    }
+
+    .legal-content table.cols-table tr {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #e3edf3;
+    }
+
+    .legal-content table.cols-table td {
+        padding: 3px 0;
+        border-bottom: none;
+    }
+
+    .legal-content table.cols-table td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: #6c8291;
+        font-weight: 700;
+        margin-bottom: 2px;
     }
 }
