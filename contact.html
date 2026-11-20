@@ -37,6 +37,16 @@
             <input type="email" name="email" placeholder="E-mail cím" required>
             <input type="tel" name="phone" placeholder="Telefonszám" required>
             <textarea name="message" placeholder="Rövid üzenet (opcionális)" rows="4"></textarea>
+
+            <div class="consent-row">
+                <input type="checkbox" id="consentCheckbox" name="consent" value="Elfogadta az adatkezelési tájékoztatót és hozzájárult az adatkezeléshez" required>
+                <label for="consentCheckbox">
+                    Elolvastam és elfogadom az
+                    <a href="adatvedelem.html" target="_blank" rel="noopener">Adatkezelési tájékoztatót</a>,
+                    és hozzájárulok a fent megadott adataim konzultáció céljából történő kezeléséhez.
+                </label>
+            </div>
+
             <button type="submit" class="pill-button" style="align-self:flex-start;">Küldés</button>
         </form>
         <p id="formNote">Köszönjük! Hamarosan felvesszük veled a kapcsolatot.</p>
@@ -47,7 +57,7 @@
     <p>&copy; 2026 A Család Kapitánya</p>
     <p>
         <a href="index.html">Vissza a teszthez</a> |
-        <a href="#">Adatvédelem</a> |
+        <a href="adatvedelem.html">Adatvédelem</a> |
         <a href="#">GYIK</a>
     </p>
 </footer>

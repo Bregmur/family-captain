@@ -65,8 +65,13 @@ const questions = [
         question: "Van-e saját otthonotok?",
         answers: [
             { text: "Igen és tehermentes", points: 0 },
-            { text: "Igen, de sajnos hitellel terhelt", points: 3 },
-            { text: "Nincs, de tervben van, és kelleni fog a hitel hozzá", points: 3 },
+            // A két "lakáshitellel terhelt" válasz a pontszámon felül a
+            // `weatherBoost` jelzőt is hordozza -- ez a kiválasztás
+            // pillanatában a horizontot is beborítja (lásd
+            // MORTGAGE_WEATHER_BONUS és a weatherBoost kezelése lentebb),
+            // nem csak az általános kockázati pontszámot növeli.
+            { text: "Igen, de sajnos hitellel terhelt", points: 3, weatherBoost: true },
+            { text: "Nincs, de tervben van, és kelleni fog a hitel hozzá", points: 3, weatherBoost: true },
             { text: "Soha nem is lesz, maradunk az albérletnél", points: 2 }
         ]
     },
@@ -176,13 +181,24 @@ const TIERS = [
         threshold: 0.75,
         title: "KOCKÁZATOS!",
         status: "Azonnali cselekvés szükséges.",
-        summary: "A hajód komoly terhet visz, biztosítás nélkül. Ha most jönne a vihar, a családod védtelenül nézne szembe vele. Egy szakértői konzultáció most a legfontosabb lépés."
+        summary: "A hajód komoly terhet visz, családi védőháló nélkül. Ha most jönne a vihar, a családod védtelenül nézne szembe vele. Egy szakértői konzultáció most a legfontosabb lépés."
     }
 ];
 
 // Weather buckets (independent of crew) — a 4 real-art stage.
 const WEATHER_THRESHOLDS = [0, 0.25, 0.5, 0.75]; // idx 0..3
 const WEATHER_KEYS = ["calm", "cloudy", "storm", "tempest"];
+
+// Ha a 3. kérdésnél (otthon/lakáshitel) a kitöltő a két "hitellel terhelt"
+// válasz valamelyikét adja, ez a bónusz hozzáadódik a jelenet időjárásának
+// (de NEM az általános kockázati pontszámnak/eredménynek) a százalékos
+// alapjához -- így az ég azonnal, már ennél a korai kérdésnél beborul
+// (akár egy egyébként még alacsony pontszámú kitöltőnél is), és a vihar a
+// kvíz hátralévő részében is korábban, alacsonyabb pontszámnál érkezik meg,
+// mint a lakáshitel-teher nélküli kitöltőknél. A tényleges kockázati
+// pontszám/eredmény (ami az emailbe és az összegzésbe kerül) ettől
+// változatlan marad -- ez kizárólag a vizuális drámaiságot fokozza.
+const MORTGAGE_WEATHER_BONUS = 0.2;
 
 let currentQuestion = 0;
 let totalPoints = 0;
@@ -200,7 +216,11 @@ const state = {
     gender: null,   // "ferfi" | "no" -- a 0. kérdésig null, addig csak a dokk látszik
     spouse: false,
     kids: false,    // van(nak) már (nagyobb) gyermeke(i)
-    baby: false     // nincs még gyermeke, de szeretne (kisbaba a fedélzeten)
+    baby: false,    // nincs még gyermeke, de szeretne (kisbaba a fedélzeten)
+    // Igazra vált, mihelyt a 3. (otthon) kérdésre a két "hitellel terhelt"
+    // válasz egyikét adja -- lásd MORTGAGE_WEATHER_BONUS. Végig igaz marad
+    // a kvíz hátralévő részében is, miután beállt.
+    mortgageStress: false
 };
 
 // A "kids" és "baby" állapotból egy egységes "dependent" kódot számol, amit
@@ -310,28 +330,6 @@ function preloadableUrl(gender, spouse, dependent, weatherIdx, onResolved) {
     tryNext(0);
 }
 
-// A "no" (női kapitány) + társ kombinációknál a generált képeken a férj
-// következetesen a kép jobb szélére esik (feltehetően mert minden ilyen
-// jelenet ugyanarra a "kapitány + társ a kormánynál" horgonyképre
-// hivatkozva készült). Asztali nézetben ez nem probléma -- ott a kép
-// szélessége közel esik a fotó natív arányához, így alig vágódik le
-// vízszintesen --, de mobilon a lerövidített, széles hajó-sáv miatt a kép
-// vízszintesen jóval erősebben be van zoomolva (a magasság tölti ki a
-// konténert), és a középre igazított vágás pont a jobb szélen álló férjet
-// vágta le teljesen. A `crew-ferfi-*` (férfi kapitány + feleség) képeken ez
-// nem jelentkezik, ott a pár középen/kicsit jobbra áll, belefér a
-// középre igazított vágásba -- ott nincs is szükség eltolásra.
-// A "kids" (3 gyerek) variánsnál a család túl szélesen (gyerekek a bal
-// szélen, apa a jobb szélen) oszlik el ahhoz, hogy BÁRMELYIK vízszintes
-// vágás mindenkit mutasson egyszerre -- azt változatlanul hagytuk (ez nem
-// az itt jelentett hiba, és a jelenlegi középre igazított vágás legalább a
-// gyerekeket + anyát mutatja).
-function scenePositionFix(gender, spouse, dependent) {
-    if (gender === "no" && spouse && dependent === "none") return "spouseRight";
-    if (gender === "no" && spouse && dependent === "baby") return "spouseRightBaby";
-    return "";
-}
-
 function setScene(gender, spouse, dependent, weatherIdx) {
     // A 0. kérdésig (amíg a nem ismeretlen) az üres, kikötőben álló hajót
     // mutatjuk -- ezt a showDock() már beállította, itt nincs teendő.
@@ -347,7 +345,6 @@ function setScene(gender, spouse, dependent, weatherIdx) {
         const currentLayer = sceneLayers[activeLayerIndex];
 
         nextLayer.style.backgroundImage = `url('${url}')`;
-        nextLayer.dataset.posfix = scenePositionFix(gender, spouse, dependent);
         nextLayer.classList.add("active");
         currentLayer.classList.remove("active");
         activeLayerIndex = nextIndex;
@@ -360,7 +357,12 @@ function setScene(gender, spouse, dependent, weatherIdx) {
 function updateRisk(pct) {
     const tier = tierForPct(pct);
     const dependent = currentDependent();
-    const rawWeatherIdx = weatherIndexForPct(pct);
+    // A kockázati szint/eredmény (tier, lentebb) a tényleges pct-en alapul
+    // változatlanul -- csak az IDŐJÁRÁS kap rádobott bónuszt, ha a kitöltő
+    // lakáshitellel terhelt (lásd MORTGAGE_WEATHER_BONUS), hogy az ég nála
+    // korábban és alacsonyabb pontszámnál is beboruljon.
+    const weatherPct = Math.min(1, pct + (state.mortgageStress ? MORTGAGE_WEATHER_BONUS : 0));
+    const rawWeatherIdx = weatherIndexForPct(weatherPct);
     // Never ask for a weather tier this crew has no art for.
     const weatherIdx = Math.min(rawWeatherIdx, maxWeatherForCrew(state.spouse, dependent));
 
@@ -500,13 +502,18 @@ function showQuestion() {
         button.innerText = answer.text;
 
         button.addEventListener("click", () => {
-            let flagUpdate = null;
-            if (current.flag === "gender") flagUpdate = () => { state.gender = answer.value; };
-            if (current.flag === "spouse") flagUpdate = () => { state.spouse = answer.value; };
-            if (current.flag === "kids") flagUpdate = () => {
+            const updates = [];
+            if (current.flag === "gender") updates.push(() => { state.gender = answer.value; });
+            if (current.flag === "spouse") updates.push(() => { state.spouse = answer.value; });
+            if (current.flag === "kids") updates.push(() => {
                 state.kids = answer.value;
                 state.baby = Boolean(answer.baby);
-            };
+            });
+            // Nem kérdés-specifikus flag -- bármelyik kérdés bármelyik
+            // válasza hordozhatja (jelenleg csak a 3. kérdés két "hitellel
+            // terhelt" válasza teszi), lásd MORTGAGE_WEATHER_BONUS.
+            if (answer.weatherBoost) updates.push(() => { state.mortgageStress = true; });
+            const flagUpdate = updates.length ? () => updates.forEach(fn => fn()) : null;
 
             selectedAnswers[current.id] = answer.text;
             advance(answer.points, flagUpdate);
