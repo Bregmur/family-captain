@@ -898,6 +898,82 @@ footer a:hover {
     color: #8a5a00;
 }
 
+/* FAQ ACCORDION (gyik.html) -- plain <details>/<summary> so it works (and
+   is keyboard/screen-reader accessible) with zero JS; the only styling job
+   here is to hide the browser's default marker and draw our own rotating
+   "+"/"x" in its place. Lives inside the same .legal-content card as the
+   adatvedelem.html prose, so it already inherits that card's width/padding
+   behaviour on mobile without needing its own media-query rules. */
+.faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.faq-item {
+    border: 1px solid #e3edf3;
+    border-radius: 14px;
+    padding: 0 20px;
+    background: #f7fafc;
+}
+
+.faq-item summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 0;
+    font-weight: 700;
+    color: #1f3b4d;
+    font-size: 1rem;
+}
+
+.faq-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.faq-item summary::after {
+    content: "+";
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #2b7bb0;
+    flex-shrink: 0;
+    line-height: 1;
+    transition: transform 0.2s ease;
+}
+
+.faq-item[open] summary::after {
+    transform: rotate(135deg);
+}
+
+.faq-item .faq-answer {
+    padding: 0 0 18px;
+    color: #33505f;
+    line-height: 1.6;
+}
+
+.faq-item .faq-answer p {
+    margin-bottom: 10px;
+    font-size: 0.97rem;
+}
+
+.faq-item .faq-answer p:last-child {
+    margin-bottom: 0;
+}
+
+.faq-item .faq-answer ul {
+    padding-left: 20px;
+    margin-bottom: 10px;
+}
+
+.faq-item .faq-answer li {
+    margin-bottom: 8px;
+    font-size: 0.97rem;
+}
+
 /* ============================================================
    MOBILE
    ============================================================ */
