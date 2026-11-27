@@ -92,9 +92,18 @@ const questions = [
     {
         id: "events",
         label: "5. kérdés",
-        question: "Milyen váratlan esemény történhet veled?",
-        hint: "Több válasz is kiválasztható.",
+        question: "Milyen váratlan esemény NEM történhet veled?",
+        hint: "Több válasz is kiválasztható. Amit nem jelölsz meg, azt a hajó még mindig kockázatként viszi -- ha egyik sem igaz rád, hagyd üresen a listát.",
         multi: true,
+        // A kérdés megfordítva teszi fel ("NEM történhet veled?"), tehát a
+        // kiválasztott válaszok a KIZÁRT veszélyeket jelentik, nem a
+        // fenyegetőket -- a pontozás és a selectedAnswers tárolás ennek
+        // megfelelően a NEM kiválasztott (= ténylegesen fennálló) válaszok
+        // alapján számol, lásd a showQuestion() "Tovább" gombjának
+        // kezelőjét. Ha senki semmit nem jelöl ki, az azt jelenti, hogy
+        // egyik veszélyt sem tudja kizárni -- ez adja a kérdés legrosszabb
+        // (legmagasabb pontszámú) kimenetelét.
+        invertScoring: true,
         answers: [
             { text: "Közúti, otthoni vagy munkahelyi baleset", points: 2 },
             { text: "Szívinfarktus (stroke)", points: 3 },
@@ -122,11 +131,10 @@ const questions = [
         label: "7. kérdés",
         question: "Ha a legrosszabb történne meg veled, vagyis hogy nem mész többet haza, mennyi ideig szeretnéd a családod anyagilag biztonságban tudni?",
         answers: [
-            { text: "1 év", points: 1 },
-            { text: "2 év", points: 2 },
-            { text: "3 év", points: 3 },
-            { text: "4 év", points: 4 },
-            { text: "5 év", points: 5 }
+            { text: "10 év", points: 1 },
+            { text: "15 év", points: 2 },
+            { text: "20 év", points: 3 },
+            { text: "25 év", points: 4 }
         ]
     },
     {
@@ -165,14 +173,14 @@ const TIERS = [
     {
         key: "watch",
         threshold: 0.25,
-        title: "VESZÉLYEZTETETT?",
+        title: "Ha viharba kerül a hajód, könnyen megsérülhet",
         status: "A hajó enyhén megdőlt.",
         summary: "Egyre többen és több minden utazik a fedélzeteden. A hajód még bírja a széllökéseket, de egy komolyabb vihar már megingatná."
     },
     {
         key: "warn",
         threshold: 0.5,
-        title: "VESZÉLYEZTETETT!",
+        title: "Ha viharba kerül a hajód, könnyen megsérülhet",
         status: "A hajó erősen süllyed a hiányos védelem miatt.",
         summary: "A családod jelentős felelősséget hordoz — gyerekek, hitel, vagy hiányzó tartalék —, miközben a védelem hiányos. Érdemes minél előbb megerősíteni a hajótestet."
     },
@@ -483,12 +491,25 @@ function showQuestion() {
         continueButton.className = "pill-button continue-button";
         continueButton.innerText = "Tovább";
         continueButton.addEventListener("click", () => {
-            const pointsToAdd = current.answers.reduce(
+            const selectedSum = current.answers.reduce(
                 (sum, answer, idx) => sum + (selected.has(idx) ? answer.points : 0),
                 0
             );
+            // Normál többválasztós kérdésnél (pl. "credits") a kiválasztott
+            // válaszok pontja számít. Egy megfordított kérdésnél (jelenleg
+            // csak az "events", lásd a questions tömbben) ennek épp a
+            // fordítottja igaz: a kiválasztás egy veszély KIZÁRÁSÁT jelenti,
+            // tehát a pontszámhoz (és a veszély-listához is, lentebb) a NEM
+            // kiválasztott -- vagyis ténylegesen fennálló -- válaszok
+            // számítanak. Semmi kiválasztása ilyenkor a kérdés teljes
+            // pontját adja (a legrosszabb kimenetelt), hiszen egyetlen
+            // veszélyt sem zártunk ki.
+            const totalForQuestion = current.answers.reduce((sum, answer) => sum + answer.points, 0);
+            const pointsToAdd = current.invertScoring ? totalForQuestion - selectedSum : selectedSum;
+
+            const isRelevant = idx => current.invertScoring ? !selected.has(idx) : selected.has(idx);
             selectedAnswers[current.id] = current.answers
-                .filter((_, idx) => selected.has(idx))
+                .filter((_, idx) => isRelevant(idx))
                 .map(answer => answer.text);
             advance(pointsToAdd, null);
         });
